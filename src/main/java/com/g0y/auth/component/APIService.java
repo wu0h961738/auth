@@ -20,16 +20,17 @@ import java.net.URLEncoder;
 import java.util.function.Function;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import retrofit2.Call;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.oauth.model.LineAPI;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import retrofit2.Call;
 
 /**
  * <p>LINE v2 API Access</p>
@@ -47,14 +48,14 @@ public class APIService {
     @Value("${linecorp.platform.channel.callbackUrl:xxxxxx}")
     private String callbackUrl;
 
-//    public AccessToken accessToken(String code) {
-//        return getClient(t -> t.accessToken(
-//                GRANT_TYPE_AUTHORIZATION_CODE,
-//                channelId,
-//                channelSecret,
-//                callbackUrl,
-//                code));
-//    }
+    public AccessToken accessToken(String code) {
+        return getClient(t -> t.accessToken(
+                GRANT_TYPE_AUTHORIZATION_CODE,
+                channelId,
+                channelSecret,
+                callbackUrl,
+                code));
+    }
 //
 //    public AccessToken refreshToken(final AccessToken accessToken) {
 //        return getClient(t -> t.refreshToken(
@@ -111,28 +112,28 @@ public class APIService {
                 + "&nonce=" + nonce;
     }
 
-//    public boolean verifyIdToken(String id_token, String nonce) {
-//        try {
-//            JWT.require(
-//                Algorithm.HMAC256(channelSecret))
-//                .withIssuer("https://access.line.me")
-//                .withAudience(channelId)
-//                .withClaim("nonce", nonce)
-//                .acceptLeeway(60) // add 60 seconds leeway to handle clock skew between client and server sides.
-//                .build()
-//                .verify(id_token);
-//            return true;
-//        } catch (UnsupportedEncodingException e) {
-//            //UTF-8 encoding not supported
-//            return false;
-//        } catch (JWTVerificationException e) {
-//            //Invalid signature/claims
-//            return false;
-//        }
-//    }
-//
-//    private <R> R getClient(final Function<LineAPI, Call<R>> function) {
-//        return Client.getClient("https://api.line.me/", LineAPI.class, function);
-//    }
+    public boolean verifyIdToken(String id_token, String nonce) {
+        try {
+            JWT.require(
+                Algorithm.HMAC256(channelSecret))
+                .withIssuer("https://access.line.me") // TODO 拉出來到enum管理？
+                .withAudience(channelId)
+                .withClaim("nonce", nonce)
+                .acceptLeeway(60) // add 60 seconds leeway to handle clock skew between client and server sides.
+                .build()
+                .verify(id_token);
+            return true;
+        } catch (UnsupportedEncodingException e) {
+            //UTF-8 encoding not supported
+            return false;
+        } catch (JWTVerificationException e) {
+            //Invalid signature/claims
+            return false;
+        }
+    }
+
+    private <R> R getClient(final Function<LineAPI, Call<R>> function) {
+        return Socket.getClient("https://api.line.me/", LineAPI.class, function);
+    }
 
 }

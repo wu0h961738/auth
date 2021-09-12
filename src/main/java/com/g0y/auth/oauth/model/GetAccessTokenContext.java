@@ -1,29 +1,37 @@
 package com.g0y.auth.oauth.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 /**
  * template of input*/
 @Data
+@NoArgsConstructor
 public class GetAccessTokenContext {
 
     /**
      * code for requesting for access token
      * */
     @NonNull
-    String authorizationCode;
+    private String authorizationCode;
 
     /**
      * information scope permitted from user
      * */
     @NonNull
-    String scope;
+    private String scope;
 
     /**
-     * security attribute hashed in last session
+     * security attribute hashed in session
      * */
-    String state;
+    @NonNull
+    private String nonce;
+
+    /**
+     * security attribute hashed in session
+     * */
+    private String state;
 
 
 }

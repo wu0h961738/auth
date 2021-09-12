@@ -1,27 +1,38 @@
 package com.g0y.auth.controller;
 
 import com.g0y.auth.component.utils.CommonUtils;
+import com.g0y.auth.controller.model.AuthPageRq;
 import com.g0y.auth.oauth.OAuthService;
+import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * OAuth controller
+ * */
 @Controller
 @RequestMapping("/")
 public class OAuthController {
 
+    /** key of session attribute*/
     private static final String LINE_WEB_LOGIN_STATE = "lineWebLoginState";
+
     static final String ACCESS_TOKEN = "accessToken";
+
+    /** key of session attribute*/
     private static final String NONCE = "nonce";
 
+    /** OAuth method*/
     @Autowired
     OAuthService oAuthService;
+
     /**
      * <p>LINE Login Button Page
      * <p>Login Type is to log in on any desktop or mobile website
@@ -36,7 +47,9 @@ public class OAuthController {
      */
     @RequestMapping(value = "/gotoauthpage/{agency}")
     public String goToAuthPage(HttpSession httpSession, @PathVariable("agency") String agency) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        //TODO session類的拉到filter層做掉
+        // TODO
+        //  1. agency 用enum管理(過濾不合法名稱)
+        //  2. enum管理 state, nonce attribute keyname
         final String state = CommonUtils.randomAndEncodeWithBase64();
         final String nonce = CommonUtils.randomAndEncodeWithBase64();
         httpSession.setAttribute(LINE_WEB_LOGIN_STATE, state);
@@ -52,18 +65,39 @@ public class OAuthController {
     }
 
     /**
-     * <p>Redirect Page from LINE Platform</p>
+     * <p>Redirect Page from Platform</p>
      * <p>Login Type is to log in on any desktop or mobile website
      */
     @RequestMapping("/auth")
     public String auth(
-            HttpSession httpSession,
-            @RequestParam(value = "code", required = false) String code,
-            @RequestParam(value = "state", required = false) String state,
-            @RequestParam(value = "scope", required = false) String scope,
-            @RequestParam(value = "error", required = false) String error,
-            @RequestParam(value = "errorCode", required = false) String errorCode,
-            @RequestParam(value = "errorMessage", required = false) String errorMessage) {
-        return "gg";
+            HttpSession httpSession, @RequestBody AuthPageRq authPageRq) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+//        if (error != null || errorCode != null || errorMessage != null){
+//            return "redirect:/loginCancel";
+//        }
+//
+//        if (!state.equals(httpSession.getAttribute(LINE_WEB_LOGIN_STATE))){
+//            return "redirect:/sessionError";
+//        }
+        httpSession.removeAttribute(LINE_WEB_LOGIN_STATE);
+        authPageRq.setNonce((String) httpSession.getAttribute(NONCE));
+        String token = oAuthService.getAccessToken(authPageRq);
+        httpSession.setAttribute(ACCESS_TOKEN, token);
+        return "redirect:/success";
+    }
+
+    /**
+     * <p>login Cancel Page
+     */
+    @RequestMapping("/loginCancel")
+    public String loginCancel() {
+        return "user/login_cancel";
+    }
+
+    /**
+     * <p>Session Error Page
+     */
+    @RequestMapping("/sessionError")
+    public String sessionError() {
+        return "user/session_error";
     }
 }
