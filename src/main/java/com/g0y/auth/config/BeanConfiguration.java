@@ -12,4 +12,5 @@ public class BeanConfiguration {
     public GetOAuthPageService getOAuthPageService(){
         return new GetOAuthPageServiceImpl();
     }
+
 }

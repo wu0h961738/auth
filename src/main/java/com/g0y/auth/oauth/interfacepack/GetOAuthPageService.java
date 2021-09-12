@@ -16,5 +16,5 @@ public interface GetOAuthPageService {
      *
      * @return Url of auth page
      * */
-    String getUrl(GetAuthPageUrlContext getAuthPageUrlContext) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException;
+    String getUrl(GetAuthPageUrlContext getAuthPageUrlContext) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException;
 }

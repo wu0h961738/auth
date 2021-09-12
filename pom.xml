@@ -14,7 +14,7 @@
 	<name>auth</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>1.8</java.version>
 		<retrofit2.groupId>com.squareup.retrofit2</retrofit2.groupId>
 		<retrofit2.version>2.5.0</retrofit2.version>
 	</properties>
