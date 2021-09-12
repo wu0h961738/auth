@@ -25,7 +25,7 @@ public final class CommonUtils {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private CommonUtils() { };
+    private CommonUtils() {}
 
     /**
      * <p>Generate Token</p>

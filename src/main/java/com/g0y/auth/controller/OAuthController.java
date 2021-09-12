@@ -1,7 +1,7 @@
 package com.g0y.auth.controller;
 
 import com.g0y.auth.component.utils.CommonUtils;
-import com.g0y.auth.oauth.interfacepack.GetOAuthPageService;
+import com.g0y.auth.oauth.OAuthService;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,7 +21,7 @@ public class OAuthController {
     private static final String NONCE = "nonce";
 
     @Autowired
-    GetOAuthPageService getOAuthPageService;
+    OAuthService oAuthService;
     /**
      * <p>LINE Login Button Page
      * <p>Login Type is to log in on any desktop or mobile website
@@ -36,6 +36,7 @@ public class OAuthController {
      */
     @RequestMapping(value = "/gotoauthpage/{agency}")
     public String goToAuthPage(HttpSession httpSession, @PathVariable("agency") String agency) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        //TODO session類的拉到filter層做掉
         final String state = CommonUtils.randomAndEncodeWithBase64();
         final String nonce = CommonUtils.randomAndEncodeWithBase64();
         httpSession.setAttribute(LINE_WEB_LOGIN_STATE, state);
@@ -45,7 +46,7 @@ public class OAuthController {
         getAuthPageUrlContext.setAgency(agency);
         getAuthPageUrlContext.setNonce(nonce);
         getAuthPageUrlContext.setState(state);
-        String url = getOAuthPageService.getUrl(getAuthPageUrlContext);
+        String url = oAuthService.getUrl(getAuthPageUrlContext);
 
         return "redirect:" + url;
     }
