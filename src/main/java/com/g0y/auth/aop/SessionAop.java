@@ -1,7 +1,6 @@
 package com.g0y.auth.aop;
 
 
-import com.g0y.auth.component.utils.CommonUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
