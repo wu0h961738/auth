@@ -56,8 +56,8 @@ public class OAuthController {
         // TODO
         //  1. agency 用enum管理(過濾不合法名稱)
         //  2. enum管理 state, nonce attribute keyname
-        final String state = CommonUtils.randomAndEncodeWithBase64();
-        final String nonce = CommonUtils.randomAndEncodeWithBase64();
+        final String state = CommonUtils.randomAndEncodeWithBase64(32);
+        final String nonce = CommonUtils.randomAndEncodeWithBase64(32);
         httpSession.setAttribute(LINE_WEB_LOGIN_STATE, state);
         httpSession.setAttribute(NONCE, nonce);
 

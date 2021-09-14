@@ -30,8 +30,8 @@ public final class CommonUtils {
     /**
      * <p>Generate Token</p>
      */
-    public static String randomAndEncodeWithBase64() {
-        byte[] bytes = new byte[32];
+    public static String randomAndEncodeWithBase64(int length) {
+        byte[] bytes = new byte[length];
         RANDOM.nextBytes(bytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         return token;
