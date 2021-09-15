@@ -3,7 +3,9 @@ package com.g0y.auth.aop;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.g0y.auth.component.service.SessionService;
 import com.g0y.auth.component.service.model.AccessTokenInfo;
+import com.g0y.auth.oauth.OAuthService;
 import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -39,6 +41,9 @@ public class LoginFilter {
     @Autowired
     private SessionService sessionService;
 
+    @Autowired
+    private OAuthService oAuthService;
+
     /**
      * validate the cookie at login phase */
     @Pointcut(value = "execution(* com.g0y.auth.controller.OAuthController.login( .. ))")
@@ -49,7 +54,8 @@ public class LoginFilter {
      * */
     @Before("validateTokenCut()")
     public void doBefore(){
-        //TODO 前次取得Token的時候即存入cookie as key : value (base64(任意字串) : idToken)
+        String agency = null;
+        //TODO 前次取得Token的時候即存入cookie as key : value (base64(agencyName+"g0sessionkey") : idToken)
         Optional<Cookie> cookieOfToken = Arrays.stream(httpServletRequest.getCookies()).filter(cookie -> cookie.getName() == "").findFirst();
         if(!cookieOfToken.isPresent()){
             // TODO 確認一下進入handler的的方法是不是直接return
@@ -57,14 +63,18 @@ public class LoginFilter {
         }
 
         //TODO 取得cookie 中 idToken as key 去查redis
-        String cookieId = cookieOfToken.get().getValue();
+        String ackTknKey = cookieOfToken.get().getValue();
+        VerifyAccessTokenContext verifyAccessTokenContext = new VerifyAccessTokenContext();
+        verifyAccessTokenContext.setAccessToken(ackTknKey);
+        if(!oAuthService.verifyAccessToken(verifyAccessTokenContext)){
+            // TODO 確認一下進入handler的的方法是不是直接return
+            return;
+        }
 
-        // TODO 記得加一段邏輯是：redis沒找到東西也直接走handler
-
-        //cookieId(random yielded at first time) as the key of redis，getAccessToken
-        AccessTokenInfo acstkn = sessionService.getAccessTokenInfo(cookieId);
+        //ackTknKey(random yielded at first time) as the key of redis，getAccessToken
+        AccessTokenInfo acstkn = sessionService.getAccessTokenInfo(ackTknKey);
         if(acstkn == null){
-            sessionService.newSession(cookieId);
+            sessionService.newSession(ackTknKey);
         }
 
         // deserialize

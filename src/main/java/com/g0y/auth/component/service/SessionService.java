@@ -103,7 +103,7 @@ public class SessionService {
   }
 
   /** Get Session Map */
-  private AccessTokenInfo getSession() {
+  private AccessTokenInfo getSession(){
     AccessTokenInfo accessTokenInfo = null;
     Map<Object, Object> session = this.redisService.hashGet(this.getSessionId());
     try {

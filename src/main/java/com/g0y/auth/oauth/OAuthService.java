@@ -2,8 +2,10 @@ package com.g0y.auth.oauth;
 
 import com.g0y.auth.component.utils.SpringContextUtils;
 import com.g0y.auth.controller.model.AuthPageRq;
+import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.GetAccessTokenContext;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
+import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
 import com.g0y.auth.oauth.thirdparty.OAuth2;
 import org.springframework.stereotype.Service;
 
@@ -57,4 +59,13 @@ public class OAuthService {
         return (String) getUrlMethod.invoke(beanObj, getAccessTokenContext);
     }
 
+    /**
+     * verify token by api requesting agency
+     *
+     * @param verifyAccessTokenContext context containing params for verifying access Token
+     * */
+    public Boolean verifyAccessToken(VerifyAccessTokenContext verifyAccessTokenContext){
+        // Todo yet implement
+        return true;
+    }
 }
