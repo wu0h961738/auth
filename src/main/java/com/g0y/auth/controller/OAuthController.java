@@ -38,13 +38,7 @@ public class OAuthController {
      * <p>Login Type is to log in on any desktop or mobile website
      */
     @RequestMapping("/")
-    public String login(HttpSession httpSession) {
-        //session attribute given by filter layer
-        Object isValid = httpSession.getAttribute("isValid");
-        if( isValid != null && (boolean)isValid){
-            httpSession.removeAttribute("isValid");
-            return "redirect:/success";
-        }
+    public String login() {
         return "user/login";
     }
 

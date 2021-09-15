@@ -9,9 +9,15 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum AgencyEnum {
-    LINE("line"),
-    GOOGLE("google"),
-    FB("facebook");
+    LINE("line", ""),
+    GOOGLE("google", ""),
+    FB("facebook", "");
 
+    /** name of auth provider */
     private String agencyName;
+
+    /** name of cookie presenting key of access token stored in redis*/
+    private String cookieName;
+
+    // TODO new function getCookieNameByAgency
 }
