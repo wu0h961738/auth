@@ -9,9 +9,10 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum AgencyEnum {
-    LINE("line", ""),
-    GOOGLE("google", ""),
-    FB("facebook", "");
+    // TODO change prefix of cookieName
+    LINE("line", "ggline"),
+    GOOGLE("google", "gggoogle"),
+    FB("facebook", "ggfacebook");
 
     /** name of auth provider */
     private String agencyName;
@@ -19,5 +20,15 @@ public enum AgencyEnum {
     /** name of cookie presenting key of access token stored in redis*/
     private String cookieName;
 
-    // TODO new function getCookieNameByAgency
+    /**
+     * getCookieName by passing agency name
+     * */
+    public static String getCookieNameByAgency(String agencyName){
+        for(AgencyEnum agency : values()){
+            if(agency.getAgencyName().equals(agencyName)){
+                return agency.getCookieName();
+            }
+        }
+        return null;
+    }
 }

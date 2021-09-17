@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * TODO 驗證redis中的access token
+ * validate login status
  * */
 public class LoginFilter implements Filter {
 
@@ -31,29 +31,25 @@ public class LoginFilter implements Filter {
      * */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
-        //TODO 前次取得Token的時候即存入cookie as key : value (base64(agencyName+"g0sessionkey") : idToken)
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        Optional<Cookie> cookieOfToken = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName() == this.getAgencyName(request.getRequestURI())).findFirst();
+        Optional<Cookie> cookieOfToken = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName() == this.getCookieName(request.getRequestURI())).findFirst();
         if(!cookieOfToken.isPresent()){
-            // TODO 確認一下進入handler的的方法是不是直接return
-            // or indicate specific handler : request.getRequestDispatcher("/gotoauthpage").forward(servletRequest, servletResponse);
-            return;
+            // directly get into /gotoauthpage
+            filterChain.doFilter(servletRequest, servletResponse);
+        } else{
+            // validate whether token exists in redis
+            String ackTknKey = cookieOfToken.get().getValue();
+            String accessToken = sessionService.getAccessToken(ackTknKey);
+            VerifyAccessTokenContext verifyAccessTokenContext = new VerifyAccessTokenContext();
+            verifyAccessTokenContext.setAccessToken(accessToken);
+            if(!oAuthService.verifyAccessToken(verifyAccessTokenContext)){
+                // directly get into /gotoauthpage
+                filterChain.doFilter(servletRequest, servletResponse);
+            } else{
+                // redirect to success api
+                request.getRequestDispatcher("/success").forward(servletRequest, servletResponse);
+            }
         }
-
-        //TODO 取得cookie 中 idToken as key 去查redis
-        String ackTknKey = cookieOfToken.get().getValue();
-        String accessToken = sessionService.getAccessToken(ackTknKey);
-        VerifyAccessTokenContext verifyAccessTokenContext = new VerifyAccessTokenContext();
-        verifyAccessTokenContext.setAccessToken(accessToken);
-        if(!oAuthService.verifyAccessToken(verifyAccessTokenContext)){
-            // TODO 確認一下進入handler的的方法是不是直接return
-            return;
-        }
-
-        // TODO verification succeed : redirect to /success
-        filterChain.doFilter(servletRequest, servletResponse);
-
-        //
     }
 
     /**
@@ -61,8 +57,7 @@ public class LoginFilter implements Filter {
      *
      * @param urlPath full context of url
      * */
-    private String getAgencyName(String urlPath){
-        //TODO Regular expression extract agency name
-        //enum.getbyagencyname
+    private String getCookieName(String urlPath){
+        return AgencyEnum.getCookieNameByAgency(urlPath.substring(urlPath.lastIndexOf('/')+1));
     }
 }

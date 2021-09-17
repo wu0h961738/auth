@@ -50,6 +50,11 @@ public class SessionService {
     this.objectMapper.registerModule(new JavaTimeModule());
   }
 
+  /** Get Session Map */
+  public String getAccessToken(String hashKey){
+    return this.redisService.get(hashKey, String.class);
+  }
+  
   /**
    * Set AccessTokenInfo To REDIS
    * 
