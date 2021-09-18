@@ -22,6 +22,9 @@ public class RedisConfig {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    //TODO to recreate a new factory bean for substituting Lettuce, the redisFactory provided by springboot in default.
+    // after replacement, dependency package "redis starter" could be removed.
+
     /**
      * RedisTemplate
      *

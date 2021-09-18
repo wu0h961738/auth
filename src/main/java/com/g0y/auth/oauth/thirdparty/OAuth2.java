@@ -1,7 +1,5 @@
 package com.g0y.auth.oauth.thirdparty;
 
-
-import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.GetAccessTokenContext;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 
@@ -15,5 +13,8 @@ public interface OAuth2 {
      * */
     String getAuthPageUrl(GetAuthPageUrlContext getAuthPageUrlContext);
 
-    String getAccessToken(GetAccessTokenContext getAccessTokenContext);
+    /**
+     * get the redis key pointing access token
+     * */
+    String getHashKeyOfToken(GetAccessTokenContext getAccessTokenContext) throws Exception;
 }

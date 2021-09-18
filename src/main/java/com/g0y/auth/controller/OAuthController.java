@@ -3,14 +3,13 @@ package com.g0y.auth.controller;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.controller.model.AuthPageRq;
 import com.g0y.auth.oauth.OAuthService;
-import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +46,7 @@ public class OAuthController {
      * <p>Redirect to Login Page</p>
      */
     @RequestMapping(value = "/gotoauthpage/{agency}")
-    public String goToAuthPage(HttpSession httpSession, @PathVariable("agency") String agency) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public String goToAuthPage(HttpSession httpSession, @PathVariable("agency") String agency) throws  InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         // TODO
         //  1. agency 用enum管理(過濾不合法名稱)
         //  2. enum管理 state, nonce attribute keyname
@@ -71,26 +70,37 @@ public class OAuthController {
      */
     @RequestMapping("/auth")
     public String auth(
-            HttpSession httpSession, @RequestBody AuthPageRq authPageRq) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-//        if (error != null || errorCode != null || errorMessage != null){
-//            return "redirect:/loginCancel";
-//        }
-//
-//        if (!state.equals(httpSession.getAttribute(LINE_WEB_LOGIN_STATE))){
-//            return "redirect:/sessionError";
-//        }
-        httpSession.removeAttribute(LINE_WEB_LOGIN_STATE);
-        authPageRq.setNonce((String) httpSession.getAttribute(NONCE));
-        String token = oAuthService.getAccessToken(authPageRq);
-        httpSession.setAttribute(ACCESS_TOKEN, token);
+            HttpSession httpSession,
+            @RequestParam(value = "code", required = false) String code,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "error", required = false) String error,
+            @RequestParam(value = "errorCode", required = false) String errorCode,
+            @RequestParam(value = "errorMessage", required = false) String errorMessage) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        if (error != null || errorCode != null || errorMessage != null){
+            return "redirect:/loginCancel";
+        }
+        if (!state.equals(httpSession.getAttribute(LINE_WEB_LOGIN_STATE))){
+            return "redirect:/sessionError";
+        }
+
+        AuthPageRq authPageRq = new AuthPageRq();
+        authPageRq.setCode(code);
+        authPageRq.setState(state);
+        String hashKey = oAuthService.getTokenHashKey(authPageRq, (String) httpSession.getAttribute(NONCE));
+        httpSession.setAttribute("Line", hashKey);
         return "redirect:/success";
     }
 
-    @RequestMapping("/success")
-    public String success(HttpSession httpSession, Model model) {
-        httpSession.removeAttribute(NONCE);
-        return "user/success";
-    }
+
+    // TODO merge template from line project
+//    @RequestMapping("/success")
+//    public String success(HttpSession httpSession, Model model) {
+//        httpSession.removeAttribute(NONCE);
+//
+//        IdToken idToken = lineAPIService.idToken(token.id_token);
+//        model.addAttribute("idToken", idToken);
+//        return "user/success";
+//    }
 
     /**
      * <p>login Cancel Page

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class SessionService {
+public class RedisSessionService {
 
   /** Timeout Seconds */
   @Value("${redis.expire.seconds:1800}")
@@ -40,8 +40,8 @@ public class SessionService {
    * 建立同時取得Header中的Token，用於此次Request <br>
    */
   @Autowired
-  public SessionService(RedisService redisService, ObjectMapper objectMapper,
-      @Value("${redis.expire.seconds:1800}") Long expireSeconds) {
+  public RedisSessionService(RedisService redisService, ObjectMapper objectMapper,
+                             @Value("${redis.expire.seconds:1800}") Long expireSeconds) {
     super();
     this.redisService = redisService;
     this.expireSeconds = expireSeconds;

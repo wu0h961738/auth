@@ -36,4 +36,14 @@ public final class CommonUtils {
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         return token;
     }
+
+    /**
+     * generate random value for cookie value
+     * TODO implement a better way for giving redis key name
+     *
+     * @param agencyName name of auth provider
+     * */
+    public static String generateTokenKey(String agencyName){
+        return agencyName + CommonUtils.randomAndEncodeWithBase64(6);
+    }
 }
