@@ -7,6 +7,7 @@ import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,6 +84,12 @@ public class OAuthController {
         String token = oAuthService.getAccessToken(authPageRq);
         httpSession.setAttribute(ACCESS_TOKEN, token);
         return "redirect:/success";
+    }
+
+    @RequestMapping("/success")
+    public String success(HttpSession httpSession, Model model) {
+        httpSession.removeAttribute(NONCE);
+        return "user/success";
     }
 
     /**
