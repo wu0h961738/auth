@@ -6,6 +6,7 @@ import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.model.GetAccessTokenContext;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
+import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
 import com.g0y.auth.oauth.thirdparty.OAuth2;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,14 @@ import java.lang.reflect.Method;
 @Service
 public class OAuthService {
 
-    /** name of method getting Auth url*/
+    /** name of method getting Auth url */
     private static final String AUTHPAGE_URL = "getAuthPageUrl";
 
-    /** name of method getting access token*/
+    /** name of method getting access token */
     private static final String ACCESSTOKEN = "getTokenInfo";
+
+    /** name of method verifying access token */
+    private static final String VERIFYTOKEN= "verifyToken";
 
     /** suffix of class implementing oauth of which vendor provides*/
     private static final String SUFFIX_OF_CLASS = "OAuth2";
@@ -56,9 +60,8 @@ public class OAuthService {
      *
      * @param verifyAccessTokenContext context containing params for verifying access Token
      * */
-    public Boolean verifyAccessToken(VerifyAccessTokenContext verifyAccessTokenContext){
-        // Todo yet implement also by implementing reflection fo bean
-        return true;
+    public VerifyAccessTokenRs verifyAccessToken(VerifyAccessTokenContext verifyAccessTokenContext) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        return getReflectMethod(verifyAccessTokenContext.getAgencyName() + SUFFIX_OF_CLASS, VERIFYTOKEN, verifyAccessTokenContext, VerifyAccessTokenRs.class);
     }
 
     /**

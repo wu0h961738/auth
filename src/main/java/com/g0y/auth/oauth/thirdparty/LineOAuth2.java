@@ -6,9 +6,7 @@ import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
-import com.g0y.auth.oauth.model.AccessToken;
-import com.g0y.auth.oauth.model.GetAccessTokenContext;
-import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
+import com.g0y.auth.oauth.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +56,21 @@ public class LineOAuth2 implements OAuth2 {
         GetTokenInfoRs getTokenInfoRs = new GetTokenInfoRs();
         getTokenInfoRs.setHashKey(hashKey);
         getTokenInfoRs.setIdToken(idToken);
+        getTokenInfoRs.setAgency(AgencyEnum.LINE.getAgencyName());
         return getTokenInfoRs;
+    }
+
+    @Override
+    public VerifyAccessTokenRs verifyToken(VerifyAccessTokenContext verifyAccessTokenContext) {
+        AccessToken accessToken = redisSessionService.getAccessToken(verifyAccessTokenContext.getRedisKey());
+        Verify verify = apiService.verify(accessToken);
+        Boolean isValid = verify.expires_in >0;
+        VerifyAccessTokenRs verifyAccessTokenRs = new VerifyAccessTokenRs();
+        verifyAccessTokenRs.setIsValid(isValid);
+        if(isValid){
+            verifyAccessTokenRs.setIdToken(accessToken.getId_token());
+        }
+        return verifyAccessTokenRs;
     }
 
 }

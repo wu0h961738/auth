@@ -9,7 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum AgencyEnum {
-    // TODO change prefix of cookieName
     LINE("line", "ggline"),
     GOOGLE("google", "gggoogle"),
     FB("facebook", "ggfacebook");
@@ -31,4 +30,29 @@ public enum AgencyEnum {
         }
         return null;
     }
+
+    /**
+     * get the name of agency providing auth service
+     *
+     * @param urlPath full context of url
+     * */
+    public static String getCookieNameByUri(String urlPath){
+        return AgencyEnum.getCookieNameByAgency(urlPath.substring(urlPath.lastIndexOf('/')+1));
+    }
+
+    /**
+     * get agencyName by matching name in Uri
+     *
+     * @param urlPath full context of url
+     * */
+    public static String getAgencyNameByUri(String urlPath){
+        String agencyInUri = urlPath.substring(urlPath.lastIndexOf('/')+1);
+        for(AgencyEnum agency : values()){
+            if(agency.getAgencyName().equals(agencyInUri)){
+                return agency.getAgencyName();
+            }
+        }
+        return null;
+    }
+
 }

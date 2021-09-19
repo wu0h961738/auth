@@ -11,11 +11,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FilterConfig {
     @Bean
-    public FilterRegistrationBean filterRegistration(){
+    public FilterRegistrationBean gotoAuthFilterRegistration(){
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new LoginFilter());
         registrationBean.setName("LoginFilter");
         registrationBean.addUrlPatterns("/gotoauthpage/*"); //only intercept handler: /gotoauthpage
+        registrationBean.setOrder(1); //set up with the highest priority
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean successFilterRegistration(){
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setFilter(new LoginFilter());
+        registrationBean.setName("SuccessPageFilter");
+        registrationBean.addUrlPatterns("/success"); //only intercept handler: /success
         registrationBean.setOrder(1); //set up with the highest priority
         return registrationBean;
     }

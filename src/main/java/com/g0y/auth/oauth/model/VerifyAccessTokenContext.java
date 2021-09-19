@@ -10,7 +10,13 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class VerifyAccessTokenContext {
 
-    /** access Token to be verified*/
+    /**
+     * agency providing auth
+     * */
     @NonNull
-    String accessToken;
+    private String agencyName;
+
+    /** key accessing redis*/
+    @NonNull
+    String redisKey;
 }

@@ -11,6 +11,11 @@ import lombok.NoArgsConstructor;
 public class GetTokenInfoRs {
 
     /**
+     * auth provider
+     * */
+    private String agency;
+
+    /**
      * key pointing full access token stored in redis
      * */
     private String hashKey;

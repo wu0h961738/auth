@@ -2,19 +2,21 @@ package com.g0y.auth.oauth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * full context of access token*/
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public final class AccessToken {
 
-    private final String scope;
-    private final String access_token;
-    private final String token_type;
-    private final Integer expires_in;
-    private final String refresh_token;
-    private final String id_token;
+    private String scope;
+    private String access_token;
+    private String token_type;
+    private String expires_in;
+    private String refresh_token;
+    private String id_token;
 
 
 }

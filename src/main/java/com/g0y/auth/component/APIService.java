@@ -28,6 +28,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.IdToken;
 import com.g0y.auth.oauth.model.LineAPI;
+import com.g0y.auth.oauth.model.Verify;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -66,10 +67,10 @@ public class APIService {
 //                channelSecret));
 //    }
 //
-//    public Verify verify(final AccessToken accessToken) {
-//        return getClient(t -> t.verify(
-//                accessToken.access_token));
-//    }
+    public Verify verify(final AccessToken accessToken) {
+        return getClient(t -> t.verify(
+                accessToken.getAccess_token()));
+    }
 //
 //    public void revoke(final AccessToken accessToken) {
 //        getClient(t -> t.revoke(

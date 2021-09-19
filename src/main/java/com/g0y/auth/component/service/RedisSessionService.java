@@ -57,7 +57,15 @@ public class RedisSessionService {
    * @param hashKey key pointing to the access token serialized as string in redis
    * */
   public AccessToken getAccessToken(String hashKey){
-    return this.redisService.get(hashKey, AccessToken.class);
+    AccessToken accessToken = null;
+    Map<Object, Object> tokenObj = this.redisService.hashGet(hashKey);
+    try {
+      String json = this.objectMapper.writeValueAsString(tokenObj);
+      accessToken = this.objectMapper.readValue(json, AccessToken.class);
+    } catch (JsonProcessingException e) {
+      log.error("get JsonProcessingException : {}", e);
+    }
+    return accessToken;
   }
 
   /**
@@ -69,7 +77,7 @@ public class RedisSessionService {
   public void setAccessToken(String cookieId, final AccessToken accessToken) {
     Map<Object, Object> accessTokenInfoMap = this.objectMapper.convertValue(accessToken, Map.class);
     this.redisService.hashPutAll(cookieId, accessTokenInfoMap);
-    this.resetSessionTimeout();
+    //this.resetSessionTimeout();
   }
 
   /**

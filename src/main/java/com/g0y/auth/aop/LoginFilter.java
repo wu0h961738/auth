@@ -1,16 +1,13 @@
 package com.g0y.auth.aop;
 
-import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.constants.AgencyEnum;
-import com.g0y.auth.oauth.OAuthService;
-import com.g0y.auth.oauth.model.AccessToken;
-import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.g0y.auth.constants.SessionEnum;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
@@ -19,26 +16,28 @@ import java.util.Optional;
  * crux: In the filter, what should be confirmed confine in scope of which access token either is valid or exists.
  * validate login status
  * */
+@Slf4j
 public class LoginFilter implements Filter {
-
-    /** redis session server */
-    @Autowired
-    private RedisSessionService redisSessionService;
-
-    @Autowired
-    private OAuthService oAuthService;
 
     /**
      * redis key:value = cookieId : JWT token = ackTknKey : accessToken
      * */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
+        log.info(" login filter in");
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+
+        //set agencyName defined in enum to session
+        HttpSession httpSession = request.getSession();
+        String url = request.getRequestURI();
+        httpSession.setAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue(), AgencyEnum.getAgencyNameByUri(url));
+        //request.setAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue(), AgencyEnum.getAgencyNameByUri(url));
+        //check login record
         Cookie[] cookies = request.getCookies();
+        String cookieNameStoringAcstkn = AgencyEnum.getCookieNameByUri(url);
         if(cookies == null){
             filterChain.doFilter(servletRequest, servletResponse);
         } else{
-            String cookieNameStoringAcstkn = this.getCookieName(request.getRequestURI());
             Optional<Cookie> cookieOfToken = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(cookieNameStoringAcstkn)).findFirst();
             if(!cookieOfToken.isPresent()){
                 // directly get into /gotoauthpage
@@ -46,30 +45,17 @@ public class LoginFilter implements Filter {
             } else{
                 // validate whether token exists in redis
                 String ackTknKey = cookieOfToken.get().getValue();
-                AccessToken accessToken = redisSessionService.getAccessToken(ackTknKey);
-                VerifyAccessTokenContext verifyAccessTokenContext = new VerifyAccessTokenContext();
-                verifyAccessTokenContext.setAccessToken(accessToken.getAccess_token());
-                if(!oAuthService.verifyAccessToken(verifyAccessTokenContext)){
-                    // directly get into /gotoauthpage
-                    filterChain.doFilter(servletRequest, servletResponse);
-                } else{
-                    // redirect to success api
-                    request.setAttribute(AgencyEnum.getCookieNameByAgency(cookieNameStoringAcstkn), accessToken.getId_token());
-                    request.getRequestDispatcher("/success").forward(servletRequest, servletResponse);
-                }
+
+                httpSession.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), ackTknKey);
+                //request.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), ackTknKey);
+                request.getRequestDispatcher("/verify").forward(request, servletResponse);
+                return; //not return to this filter
             }
         }
 
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-        response.addCookie(new Cookie("Line", (String) request.getSession().getAttribute("Line")));
+        log.info(" login filter out");
+
     }
 
-    /**
-     * get the name of agency providing auth service
-     *
-     * @param urlPath full context of url
-     * */
-    private String getCookieName(String urlPath){
-        return AgencyEnum.getCookieNameByAgency(urlPath.substring(urlPath.lastIndexOf('/')+1));
-    }
+
 }

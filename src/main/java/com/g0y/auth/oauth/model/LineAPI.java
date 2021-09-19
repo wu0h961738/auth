@@ -43,10 +43,10 @@ public interface LineAPI {
             @Field("client_id") String client_id,
             @Field("client_secret") String client_secret);
 
-//    @Headers("Content-Type: application/x-www-form-urlencoded")
-//    @GET("oauth2/v2.1/verify")
-//    Call<Verify> verify(
-//            @Query("access_token") String access_token);
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @GET("oauth2/v2.1/verify")
+    Call<Verify> verify(
+            @Query("access_token") String access_token);
 
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @FormUrlEncoded
