@@ -2,7 +2,7 @@ package com.g0y.auth.oauth;
 
 import com.g0y.auth.component.utils.SpringContextUtils;
 import com.g0y.auth.controller.model.AuthPageRq;
-import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.model.GetAccessTokenContext;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
@@ -22,7 +22,7 @@ public class OAuthService {
     private static final String AUTHPAGE_URL = "getAuthPageUrl";
 
     /** name of method getting access token*/
-    private static final String ACCESSTOKEN = "getHashKeyOfToken";
+    private static final String ACCESSTOKEN = "getTokenInfo";
 
     /** suffix of class implementing oauth of which vendor provides*/
     private static final String SUFFIX_OF_CLASS = "OAuth2";
@@ -43,16 +43,12 @@ public class OAuthService {
     /**
      * request for accessToken
      * */
-    public String getTokenHashKey(AuthPageRq authPageRq, String nonce) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Object beanObj = SpringContextUtils.getBean(agency + SUFFIX_OF_CLASS);
-        Class<? extends OAuth2> agencyObj = (Class<? extends OAuth2>) beanObj.getClass();
-
+    public GetTokenInfoRs getToken(AuthPageRq authPageRq, String nonce) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         GetAccessTokenContext getAccessTokenContext = new GetAccessTokenContext();
         getAccessTokenContext.setAuthorizationCode(authPageRq.getCode());
         getAccessTokenContext.setNonce(nonce);
         getAccessTokenContext.setState(authPageRq.getState());
-        Method getUrlMethod = agencyObj.getMethod(ACCESSTOKEN, GetAccessTokenContext.class);
-        return (String) getUrlMethod.invoke(beanObj, getAccessTokenContext);
+        return getReflectMethod(agency + SUFFIX_OF_CLASS, ACCESSTOKEN, getAccessTokenContext, GetTokenInfoRs.class);
     }
 
     /**

@@ -26,6 +26,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.oauth.model.IdToken;
 import com.g0y.auth.oauth.model.LineAPI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -76,23 +77,23 @@ public class APIService {
 //                channelId,
 //                channelSecret));
 //    }
-//
-//    public IdToken idToken(String id_token) {
-//        try {
-//            DecodedJWT jwt = JWT.decode(id_token);
-//            return new IdToken(
-//                    jwt.getClaim("iss").asString(),
-//                    jwt.getClaim("sub").asString(),
-//                    jwt.getClaim("aud").asString(),
-//                    jwt.getClaim("ext").asLong(),
-//                    jwt.getClaim("iat").asLong(),
-//                    jwt.getClaim("nonce").asString(),
-//                    jwt.getClaim("name").asString(),
-//                    jwt.getClaim("picture").asString());
-//        } catch (JWTDecodeException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+
+    public IdToken idToken(String id_token) {
+        try {
+            DecodedJWT jwt = JWT.decode(id_token);
+            return new IdToken(
+                    jwt.getClaim("iss").asString(),
+                    jwt.getClaim("sub").asString(),
+                    jwt.getClaim("aud").asString(),
+                    jwt.getClaim("ext").asLong(),
+                    jwt.getClaim("iat").asLong(),
+                    jwt.getClaim("nonce").asString(),
+                    jwt.getClaim("name").asString(),
+                    jwt.getClaim("picture").asString());
+        } catch (JWTDecodeException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public String getLineWebLoginUrl(String state, String nonce, List<String> scopes) {
         final String encodedCallbackUrl;

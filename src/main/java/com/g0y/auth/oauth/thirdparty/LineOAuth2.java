@@ -2,8 +2,10 @@ package com.g0y.auth.oauth.thirdparty;
 
 import com.g0y.auth.component.APIService;
 import com.g0y.auth.component.service.RedisService;
+import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
+import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.GetAccessTokenContext;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
@@ -26,7 +28,7 @@ public class LineOAuth2 implements OAuth2 {
     private APIService apiService;
 
     @Autowired
-    private RedisService redisService;
+    private RedisSessionService redisSessionService;
 
     /** scope requiring information of user. */
     private static final String[] SCOPE = {"openid", "profile"};
@@ -39,20 +41,24 @@ public class LineOAuth2 implements OAuth2 {
     }
 
     @Override
-    public String getHashKeyOfToken(GetAccessTokenContext getAccessTokenContext) throws Exception {
+    public GetTokenInfoRs getTokenInfo(GetAccessTokenContext getAccessTokenContext) throws Exception {
         AccessToken accessToken = apiService.accessToken(getAccessTokenContext.getAuthorizationCode());
         if(accessToken == null){
             throw new Exception("Invalid authorization code");
         }
-        String idToken = accessToken.id_token;
-        //verify token whether meeting standard (XSS check : compare hash(idToken+nonce) ?= token received)
+        String idToken = accessToken.getId_token();
+        //verify token if meeting standard (XSS check : compare hash(idToken+nonce) ?= token received)
         apiService.verifyIdToken(idToken, getAccessTokenContext.getNonce());
 
         // key : value =  : accessToken(id_token(payload))
         String hashKey = CommonUtils.generateTokenKey(AgencyEnum.LINE.getAgencyName());
-        redisService.valueSet(hashKey, accessToken.access_token, Duration.ofDays(7));
+        redisSessionService.setAccessToken(hashKey, accessToken);
+
         //return token and put it into header of httpresponse at handler layer
-        return hashKey;
+        GetTokenInfoRs getTokenInfoRs = new GetTokenInfoRs();
+        getTokenInfoRs.setHashKey(hashKey);
+        getTokenInfoRs.setIdToken(idToken);
+        return getTokenInfoRs;
     }
 
 }

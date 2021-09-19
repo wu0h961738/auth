@@ -1,9 +1,12 @@
 package com.g0y.auth.controller;
 
+import com.g0y.auth.component.APIService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.controller.model.AuthPageRq;
+import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.OAuthService;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
+import com.g0y.auth.oauth.model.IdToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +36,8 @@ public class OAuthController {
     @Autowired
     OAuthService oAuthService;
 
+    @Autowired
+    APIService apiService;
     /**
      * <p>LINE Login Button Page
      * <p>Login Type is to log in on any desktop or mobile website
@@ -86,21 +91,23 @@ public class OAuthController {
         AuthPageRq authPageRq = new AuthPageRq();
         authPageRq.setCode(code);
         authPageRq.setState(state);
-        String hashKey = oAuthService.getTokenHashKey(authPageRq, (String) httpSession.getAttribute(NONCE));
-        httpSession.setAttribute("Line", hashKey);
+        GetTokenInfoRs tokenInfoRs = oAuthService.getToken(authPageRq, (String) httpSession.getAttribute(NONCE));
+        httpSession.setAttribute("idToken", tokenInfoRs.getIdToken());
+        httpSession.setAttribute("hashKey", tokenInfoRs.getHashKey());
         return "redirect:/success";
     }
 
+    /**
+     * <p> successPage
+     * */
+    @RequestMapping("/success")
+    public String success(HttpSession httpSession, Model model) {
+        httpSession.removeAttribute(NONCE);
 
-    // TODO merge template from line project
-//    @RequestMapping("/success")
-//    public String success(HttpSession httpSession, Model model) {
-//        httpSession.removeAttribute(NONCE);
-//
-//        IdToken idToken = lineAPIService.idToken(token.id_token);
-//        model.addAttribute("idToken", idToken);
-//        return "user/success";
-//    }
+        IdToken idToken = apiService.idToken((String) httpSession.getAttribute("idToken"));
+        model.addAttribute("idToken", idToken);
+        return "user/success";
+    }
 
     /**
      * <p>login Cancel Page

@@ -3,6 +3,7 @@ package com.g0y.auth.aop;
 import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.oauth.OAuthService;
+import com.g0y.auth.oauth.model.AccessToken;
 import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,21 +38,23 @@ public class LoginFilter implements Filter {
         if(cookies == null){
             filterChain.doFilter(servletRequest, servletResponse);
         } else{
-            Optional<Cookie> cookieOfToken = Arrays.stream(cookies).filter(cookie -> cookie.getName() == this.getCookieName(request.getRequestURI())).findFirst();
+            String cookieNameStoringAcstkn = this.getCookieName(request.getRequestURI());
+            Optional<Cookie> cookieOfToken = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(cookieNameStoringAcstkn)).findFirst();
             if(!cookieOfToken.isPresent()){
                 // directly get into /gotoauthpage
                 filterChain.doFilter(servletRequest, servletResponse);
             } else{
                 // validate whether token exists in redis
                 String ackTknKey = cookieOfToken.get().getValue();
-                String accessToken = redisSessionService.getAccessToken(ackTknKey);
+                AccessToken accessToken = redisSessionService.getAccessToken(ackTknKey);
                 VerifyAccessTokenContext verifyAccessTokenContext = new VerifyAccessTokenContext();
-                verifyAccessTokenContext.setAccessToken(accessToken);
+                verifyAccessTokenContext.setAccessToken(accessToken.getAccess_token());
                 if(!oAuthService.verifyAccessToken(verifyAccessTokenContext)){
                     // directly get into /gotoauthpage
                     filterChain.doFilter(servletRequest, servletResponse);
                 } else{
                     // redirect to success api
+                    request.setAttribute(AgencyEnum.getCookieNameByAgency(cookieNameStoringAcstkn), accessToken.getId_token());
                     request.getRequestDispatcher("/success").forward(servletRequest, servletResponse);
                 }
             }

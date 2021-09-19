@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.g0y.auth.component.service.model.AccessTokenInfo;
+import com.g0y.auth.oauth.model.AccessToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,19 +51,23 @@ public class RedisSessionService {
     this.objectMapper.registerModule(new JavaTimeModule());
   }
 
-  /** Get Session Map */
-  public String getAccessToken(String hashKey){
-    return this.redisService.get(hashKey, String.class);
-  }
-  
   /**
-   * Set AccessTokenInfo To REDIS
+   * Get full context of accessToken
+   *
+   * @param hashKey key pointing to the access token serialized as string in redis
+   * */
+  public AccessToken getAccessToken(String hashKey){
+    return this.redisService.get(hashKey, AccessToken.class);
+  }
+
+  /**
+   * Set AccessToken To REDIS
    * 
-   * @param accessTokenInfo AccessTokenInfo
+   * @param accessToken AccessTokenInfo
    */
   @SuppressWarnings("unchecked")
-  public void setAccessTokenInfo(String cookieId, final AccessTokenInfo accessTokenInfo) {
-    Map<Object, Object> accessTokenInfoMap = this.objectMapper.convertValue(accessTokenInfo, Map.class);
+  public void setAccessToken(String cookieId, final AccessToken accessToken) {
+    Map<Object, Object> accessTokenInfoMap = this.objectMapper.convertValue(accessToken, Map.class);
     this.redisService.hashPutAll(cookieId, accessTokenInfoMap);
     this.resetSessionTimeout();
   }
@@ -145,4 +150,5 @@ public class RedisSessionService {
     this.token.remove();
     this.accessTokenInfo.remove();
   }
+
 }
