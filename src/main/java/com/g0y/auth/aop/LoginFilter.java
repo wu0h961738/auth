@@ -31,31 +31,22 @@ public class LoginFilter implements Filter {
         HttpSession httpSession = request.getSession();
         String url = request.getRequestURI();
         httpSession.setAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue(), AgencyEnum.getAgencyNameByUri(url));
-        //request.setAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue(), AgencyEnum.getAgencyNameByUri(url));
-        //check login record
+        //check login record by checking coookie
         Cookie[] cookies = request.getCookies();
         String cookieNameStoringAcstkn = AgencyEnum.getCookieNameByUri(url);
-        if(cookies == null){
-            filterChain.doFilter(servletRequest, servletResponse);
-        } else{
+        if(cookies != null){
             Optional<Cookie> cookieOfToken = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(cookieNameStoringAcstkn)).findFirst();
-            if(!cookieOfToken.isPresent()){
-                // directly get into /gotoauthpage
-                filterChain.doFilter(servletRequest, servletResponse);
-            } else{
+            if(cookieOfToken.isPresent()){
                 // validate whether token exists in redis
                 String ackTknKey = cookieOfToken.get().getValue();
-
                 httpSession.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), ackTknKey);
-                //request.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), ackTknKey);
                 request.getRequestDispatcher("/verify").forward(request, servletResponse);
-                return; //not return to this filter
+                log.info("trans to verify page");
+                return ;
             }
         }
-
-        log.info(" login filter out");
-
+        filterChain.doFilter(request, servletResponse);
+        log.info("login filter out");
     }
-
 
 }

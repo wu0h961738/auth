@@ -70,6 +70,7 @@ public class OAuthController {
         String url = oAuthService.getUrl(getAuthPageUrlContext);
 
         return "redirect:" + url;
+
     }
 
     /**
@@ -112,7 +113,6 @@ public class OAuthController {
         IdToken idToken = apiService.idToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
         model.addAttribute("idToken", idToken);
 
-        // TODO attribute storing agency misses
         String keyName = AgencyEnum.getCookieNameByAgency((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue()));
         String cookieValue = (String) httpSession.getAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue());
         Cookie authentication = new Cookie(keyName, cookieValue);
