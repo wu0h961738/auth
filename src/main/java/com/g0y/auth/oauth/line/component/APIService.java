@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.g0y.auth.component;
+package com.g0y.auth.oauth.line.component;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -25,9 +25,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.component.Socket;
+import com.g0y.auth.oauth.line.model.AccessToken;
 import com.g0y.auth.oauth.model.IdToken;
-import com.g0y.auth.oauth.model.LineAPI;
+import com.g0y.auth.oauth.line.model.LineAPI;
 import com.g0y.auth.oauth.model.Verify;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

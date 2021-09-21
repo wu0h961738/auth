@@ -1,10 +1,6 @@
-package com.g0y.auth.oauth.thirdparty;
+package com.g0y.auth.oauth.model;
 
 import com.g0y.auth.controller.model.GetTokenInfoRs;
-import com.g0y.auth.oauth.model.GetAccessTokenContext;
-import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
-import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
-import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
 
 /**
  * implement OAuth2

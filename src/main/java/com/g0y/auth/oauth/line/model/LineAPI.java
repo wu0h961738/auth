@@ -13,9 +13,9 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.g0y.auth.oauth.model;
+package com.g0y.auth.oauth.line.model;
 
-import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.oauth.model.Verify;
 import retrofit2.Call;
 import retrofit2.http.*;
 

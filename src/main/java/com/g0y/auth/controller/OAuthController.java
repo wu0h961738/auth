@@ -1,10 +1,9 @@
 package com.g0y.auth.controller;
 
-import com.g0y.auth.component.APIService;
+import com.g0y.auth.oauth.line.component.APIService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.constants.SessionEnum;
-import com.g0y.auth.controller.model.AuthPageRq;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.OAuthService;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
@@ -14,15 +13,14 @@ import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 /**
  * OAuth controller
@@ -32,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 public class OAuthController {
 
     /** key of session attribute*/
-    private static final String LINE_WEB_LOGIN_STATE = "lineWebLoginState";
+    private static final String STATE = "state";
 
     /** key of session attribute*/
     private static final String NONCE = "nonce";
@@ -60,7 +58,7 @@ public class OAuthController {
 
         final String state = CommonUtils.randomAndEncodeWithBase64(32);
         final String nonce = CommonUtils.randomAndEncodeWithBase64(32);
-        httpSession.setAttribute(LINE_WEB_LOGIN_STATE, state);
+        httpSession.setAttribute(STATE, state);
         httpSession.setAttribute(NONCE, nonce);
 
         GetAuthPageUrlContext getAuthPageUrlContext = new GetAuthPageUrlContext();
@@ -79,23 +77,17 @@ public class OAuthController {
      */
     @RequestMapping("/auth")
     public String auth(
-            HttpSession httpSession,
-            @RequestParam(value = "code", required = false) String code,
-            @RequestParam(value = "state", required = false) String state,
-            @RequestParam(value = "error", required = false) String error,
-            @RequestParam(value = "errorCode", required = false) String errorCode,
-            @RequestParam(value = "errorMessage", required = false) String errorMessage) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        if (error != null || errorCode != null || errorMessage != null){
-            return "redirect:/loginCancel";
-        }
-        if (!state.equals(httpSession.getAttribute(LINE_WEB_LOGIN_STATE))){
-            return "redirect:/sessionError";
-        }
+            HttpSession httpSession, @RequestParam Map<String, String> authRq
 
-        AuthPageRq authPageRq = new AuthPageRq();
-        authPageRq.setCode(code);
-        authPageRq.setState(state);
-        GetTokenInfoRs tokenInfoRs = oAuthService.getToken(authPageRq, (String) httpSession.getAttribute(NONCE));
+    ) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        //TODO error handle
+//        if (error != null || errorCode != null || errorMessage != null){
+//            return "redirect:/loginCancel";
+//        }
+//        if (!state.equals(httpSession.getAttribute(STATE))){
+//            return "redirect:/sessionError";
+//        }
+        GetTokenInfoRs tokenInfoRs = oAuthService.getToken(authRq, (String) httpSession.getAttribute(NONCE));
         httpSession.setAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue(), tokenInfoRs.getIdToken());
         //TODO session could store list of redisKey = key : list<String> redisKey
         httpSession.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), tokenInfoRs.getHashKey());

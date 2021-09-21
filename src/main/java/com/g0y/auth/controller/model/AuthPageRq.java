@@ -19,11 +19,10 @@ public class AuthPageRq {
     @NonNull
     private String state;
 
-//    /** information scope */
-//    @NonNull
-//    private String scope;
+    /** information scope */
+    private String scope;
 //
-//    @NonNull
+//    /** security attr*/
 //    private String nonce;
 
     /** error */

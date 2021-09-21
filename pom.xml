@@ -88,6 +88,16 @@
 			<artifactId>gson</artifactId>
 			<version>2.6.2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>1.32.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.oauth-client</groupId>
+			<artifactId>google-oauth-client</artifactId>
+			<version>1.31.0</version>
+		</dependency>
 
 		<!-- JWT library -->
 		<!-- use MIT License -->
@@ -103,7 +113,17 @@
 			<version>1.18.20</version>
 			<scope>provided</scope>
 		</dependency>
-		</dependencies>
+
+		<!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.1.10</version>
+		</dependency>
+
+
+
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>

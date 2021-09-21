@@ -1,4 +1,4 @@
-package com.g0y.auth.oauth.model;
+package com.g0y.auth.oauth.line.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

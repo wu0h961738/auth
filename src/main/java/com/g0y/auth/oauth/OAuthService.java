@@ -1,17 +1,24 @@
 package com.g0y.auth.oauth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.g0y.auth.component.utils.AdapterUtils;
 import com.g0y.auth.component.utils.SpringContextUtils;
+import com.g0y.auth.constants.AgencyEnum;
+import com.g0y.auth.controller.model.AuthPageAdapterContext;
 import com.g0y.auth.controller.model.AuthPageRq;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.g0y.auth.oauth.google.component.GoogleOAuthAdapter;
 import com.g0y.auth.oauth.model.GetAccessTokenContext;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
 import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
 import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
-import com.g0y.auth.oauth.thirdparty.OAuth2;
+import com.g0y.auth.oauth.model.OAuth2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * whole OAuth Process
@@ -34,6 +41,9 @@ public class OAuthService {
     /** name of vendor */
     private String agency;
 
+    @Autowired
+    private AdapterUtils adapterUtils;
+
     /**
      * get Auth page provided by vendor
      *
@@ -47,7 +57,16 @@ public class OAuthService {
     /**
      * request for accessToken
      * */
-    public GetTokenInfoRs getToken(AuthPageRq authPageRq, String nonce) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public GetTokenInfoRs getToken(Map<String, String> authRq, String nonce) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        // adapt specific rq
+        AuthPageAdapterContext authPageAdapterContext = new AuthPageAdapterContext();
+        authPageAdapterContext.setAgency(agency);
+        authPageAdapterContext.setRequestParams(authRq);
+        authPageAdapterContext.setNonce(nonce);
+        AuthPageRq authPageRq = adapterUtils.getAuthPageRq(authPageAdapterContext);
+
+        // get access token
         GetAccessTokenContext getAccessTokenContext = new GetAccessTokenContext();
         getAccessTokenContext.setAuthorizationCode(authPageRq.getCode());
         getAccessTokenContext.setNonce(nonce);
@@ -78,4 +97,5 @@ public class OAuthService {
         Method getUrlMethod =agencyObj.getMethod(methodName, inputParam.getClass());
         return returnType.cast(getUrlMethod.invoke(beanObj, inputParam));
     }
+
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.g0y.auth.component.service.model.AccessTokenInfo;
-import com.g0y.auth.oauth.model.AccessToken;
+import com.g0y.auth.oauth.line.model.AccessToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

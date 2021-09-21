@@ -1,16 +1,16 @@
-package com.g0y.auth.oauth.thirdparty;
+package com.g0y.auth.oauth.line;
 
-import com.g0y.auth.component.APIService;
-import com.g0y.auth.component.service.RedisService;
+import com.g0y.auth.oauth.line.component.APIService;
 import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.g0y.auth.oauth.line.model.AccessToken;
 import com.g0y.auth.oauth.model.*;
+import com.g0y.auth.oauth.model.OAuth2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.Arrays;
 
 /**

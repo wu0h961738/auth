@@ -15,11 +15,13 @@
   ~ under the License.
   -->
 <html xmlns:th="http://www.thymeleaf.org">
+
   <head>
     <meta http-equiv='Content-type' content='text/html; charset=utf-8' />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/line-login.css" />
+    <link rel="stylesheet" href="css/other-login.css" />
     <title>LINE Web Login</title>
   </head>
   <body>
@@ -32,6 +34,17 @@
               <a class="center-block" href="/gotoauthpage/line"></a>
             </div>
           </div>
+        </div>
+        <div class="col">
+          <a href="#" class="fb btn">
+            <i class="fa fa-facebook fa-fw"></i> Login with Facebook
+          </a>
+          <a href="#" class="twitter btn">
+            <i class="fa fa-twitter fa-fw"></i> Login with Twitter
+          </a>
+          <a href="/gotoauthpage/google" class="google btn">
+            <i class="fa fa-google fa-fw"></i> Login with Google+
+          </a>
         </div>
       </div>
     </div>
