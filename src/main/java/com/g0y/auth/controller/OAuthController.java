@@ -7,7 +7,8 @@ import com.g0y.auth.constants.SessionEnum;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.OAuthService;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
-import com.g0y.auth.oauth.model.IdToken;
+import com.g0y.auth.oauth.line.model.IdToken;
+import com.g0y.auth.oauth.model.GetPayloadInfoRs;
 import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
 import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,6 @@ public class OAuthController {
     @Autowired
     OAuthService oAuthService;
 
-    @Autowired
-    APIService apiService;
     /**
      * <p>LINE Login Button Page
      * <p>Login Type is to log in on any desktop or mobile website
@@ -99,11 +98,13 @@ public class OAuthController {
      * <p> successPage
      * */
     @RequestMapping("/success")
-    public String success(HttpServletResponse response, HttpSession httpSession, Model model) {
+    public String success(HttpServletResponse response, HttpSession httpSession, Model model) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         httpSession.removeAttribute(NONCE);
 
-        IdToken idToken = apiService.idToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
-        model.addAttribute("idToken", idToken);
+        GetPayloadInfoRs getPayloadInfoRs = oAuthService.decodeIdToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
+        //IdToken idToken = apiService.idToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
+        model.addAttribute("idToken_name", getPayloadInfoRs.getName());
+        model.addAttribute("idToken_picture", getPayloadInfoRs.getPicture());
 
         String keyName = AgencyEnum.getCookieNameByAgency((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue()));
         String cookieValue = (String) httpSession.getAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue());

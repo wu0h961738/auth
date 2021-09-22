@@ -27,9 +27,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.g0y.auth.component.Socket;
 import com.g0y.auth.oauth.line.model.AccessToken;
-import com.g0y.auth.oauth.model.IdToken;
+import com.g0y.auth.oauth.line.model.IdToken;
 import com.g0y.auth.oauth.line.model.LineAPI;
-import com.g0y.auth.oauth.model.Verify;
+import com.g0y.auth.oauth.line.model.Verify;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -119,7 +119,7 @@ public class APIService {
         try {
             JWT.require(
                 Algorithm.HMAC256(channelSecret))
-                .withIssuer("https://access.line.me") // TODO 拉出來到enum管理？
+                .withIssuer("https://access.line.me")
                 .withAudience(channelId)
                 .withClaim("nonce", nonce)
                 .acceptLeeway(60) // add 60 seconds leeway to handle clock skew between client and server sides.

@@ -15,7 +15,6 @@
  */
 package com.g0y.auth.oauth.line.model;
 
-import com.g0y.auth.oauth.model.Verify;
 import retrofit2.Call;
 import retrofit2.http.*;
 

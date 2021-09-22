@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.g0y.auth.oauth.model;
+package com.g0y.auth.oauth.line.model;
 
 public final class IdToken {
     public final String iss;

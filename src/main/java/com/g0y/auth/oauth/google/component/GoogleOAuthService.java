@@ -1,8 +1,6 @@
 package com.g0y.auth.oauth.google.component;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * specification defined by Google
@@ -32,15 +32,25 @@ public class GoogleOAuthService {
     /** class render oauth of google */
     private GoogleAuthorizationCodeFlow authorizationCodeFlow;
 
+    /** decoder of google payload */
+    private GoogleIdTokenVerifier googleIdTokenVerifier;
+
     /** constructor */
     @PostConstruct
     public void init(){
+        NetHttpTransport netHttpTransport = new NetHttpTransport();
+        GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
         this.authorizationCodeFlow = new GoogleAuthorizationCodeFlow.Builder(
-                new NetHttpTransport(),
-                GsonFactory.getDefaultInstance(),
+                netHttpTransport,
+                jsonFactory,
                 channelId,
                 channelSecret,
                 Arrays.asList(SCOPE)).build();
+        this.googleIdTokenVerifier = new GoogleIdTokenVerifier.Builder(
+                netHttpTransport,
+                jsonFactory)
+                .setAudience(Collections.singletonList(channelId))
+                .build();
     }
 
     /**
@@ -61,5 +71,17 @@ public class GoogleOAuthService {
     public GoogleTokenResponse getAccessToken(String authorizationCode) throws IOException {
         GoogleAuthorizationCodeTokenRequest authorizationCodeTokenRequest = authorizationCodeFlow.newTokenRequest(authorizationCode).setRedirectUri(callbackUrl);
         return authorizationCodeTokenRequest.execute();
+    }
+
+    /**
+     * get paylaod information of idtoken
+     *
+     * @param idToken id token received from google.accessToken pojo
+     * */
+    public GoogleIdToken.Payload getPayload(String idToken) throws GeneralSecurityException, IOException {
+        GoogleIdToken googleIdToken;
+
+        googleIdToken = googleIdTokenVerifier.verify(idToken);
+        return googleIdToken.getPayload();
     }
 }

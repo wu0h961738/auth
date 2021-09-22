@@ -6,14 +6,13 @@ import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.google.component.GoogleOAuthService;
 import com.g0y.auth.oauth.line.model.AccessToken;
-import com.g0y.auth.oauth.model.GetAccessTokenContext;
-import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
-import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
-import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
-import com.g0y.auth.oauth.model.OAuth2;
+import com.g0y.auth.oauth.model.*;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 
 /**
@@ -53,6 +52,15 @@ public class GoogleOAuth2 implements OAuth2 {
     @Override
     public VerifyAccessTokenRs verifyToken(VerifyAccessTokenContext verifyAccessTokenContext) {
         return null;
+    }
+
+    @Override
+    public GetPayloadInfoRs getUserInfo(String idToken) throws GeneralSecurityException, IOException {
+        GoogleIdToken.Payload payload = googleOAuthService.getPayload(idToken);
+        GetPayloadInfoRs getPayloadInfoRs = new GetPayloadInfoRs();
+        getPayloadInfoRs.setName((String) payload.get("name"));
+        getPayloadInfoRs.setPicture((String) payload.get("picture"));
+        return getPayloadInfoRs;
     }
 
     /**

@@ -1,18 +1,11 @@
 package com.g0y.auth.oauth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.g0y.auth.component.utils.AdapterUtils;
 import com.g0y.auth.component.utils.SpringContextUtils;
-import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.controller.model.AuthPageAdapterContext;
 import com.g0y.auth.controller.model.AuthPageRq;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
-import com.g0y.auth.oauth.google.component.GoogleOAuthAdapter;
-import com.g0y.auth.oauth.model.GetAccessTokenContext;
-import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
-import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
-import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
-import com.g0y.auth.oauth.model.OAuth2;
+import com.g0y.auth.oauth.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
+ * TODO should optimize the way throwing parameter - agency
  * whole OAuth Process
  * */
 @Service
@@ -34,6 +28,9 @@ public class OAuthService {
 
     /** name of method verifying access token */
     private static final String VERIFYTOKEN= "verifyToken";
+
+    /** name of method decoding id token, whose payload includes user information */
+    private static final String DECODE_IDTOKEN = "getUserInfo";
 
     /** suffix of class implementing oauth of which vendor provides*/
     private static final String SUFFIX_OF_CLASS = "OAuth2";
@@ -81,6 +78,15 @@ public class OAuthService {
      * */
     public VerifyAccessTokenRs verifyAccessToken(VerifyAccessTokenContext verifyAccessTokenContext) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         return getReflectMethod(verifyAccessTokenContext.getAgencyName() + SUFFIX_OF_CLASS, VERIFYTOKEN, verifyAccessTokenContext, VerifyAccessTokenRs.class);
+    }
+
+    /**
+     * decode payload containing user information
+     *
+     * @param idToken token containing header and payload
+     * */
+    public GetPayloadInfoRs decodeIdToken(String idToken) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        return getReflectMethod(agency + SUFFIX_OF_CLASS, DECODE_IDTOKEN, idToken, GetPayloadInfoRs.class);
     }
 
     /**

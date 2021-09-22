@@ -6,6 +6,8 @@ import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.line.model.AccessToken;
+import com.g0y.auth.oauth.line.model.IdToken;
+import com.g0y.auth.oauth.line.model.Verify;
 import com.g0y.auth.oauth.model.*;
 import com.g0y.auth.oauth.model.OAuth2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,15 @@ public class LineOAuth2 implements OAuth2 {
             verifyAccessTokenRs.setIdToken(accessToken.getId_token());
         }
         return verifyAccessTokenRs;
+    }
+
+    @Override
+    public GetPayloadInfoRs getUserInfo(String idToken) {
+        IdToken payload = apiService.idToken(idToken);
+        GetPayloadInfoRs getPayloadInfoRs = new GetPayloadInfoRs();
+        getPayloadInfoRs.setName(payload.name);
+        getPayloadInfoRs.setPicture(payload.picture);
+        return getPayloadInfoRs;
     }
 
 }
