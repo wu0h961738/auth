@@ -23,7 +23,7 @@ public interface OAuth2 {
     /**
      * verify by sending token to vendor, confirming if token is valid
      * */
-    VerifyAccessTokenRs verifyToken(VerifyAccessTokenContext verifyAccessTokenContext);
+    VerifyAccessTokenRs verifyToken(VerifyAccessTokenContext verifyAccessTokenContext) throws GeneralSecurityException, IOException;
 
     /**
      * decode payload from id token

@@ -85,7 +85,7 @@ public class OAuthService {
      *
      * @param idToken token containing header and payload
      * */
-    public GetPayloadInfoRs decodeIdToken(String idToken) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public GetPayloadInfoRs decodeIdToken(String agency, String idToken) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         return getReflectMethod(agency + SUFFIX_OF_CLASS, DECODE_IDTOKEN, idToken, GetPayloadInfoRs.class);
     }
 

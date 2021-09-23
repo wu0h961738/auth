@@ -50,7 +50,11 @@ public class GoogleOAuth2 implements OAuth2 {
     }
 
     @Override
-    public VerifyAccessTokenRs verifyToken(VerifyAccessTokenContext verifyAccessTokenContext) {
+    public VerifyAccessTokenRs verifyToken(VerifyAccessTokenContext verifyAccessTokenContext) throws GeneralSecurityException, IOException {
+        GoogleIdToken.Payload payload = googleOAuthService.getPayload(""); // TODO update session management supposed to be passed by context
+        VerifyAccessTokenRs verifyAccessTokenRs = new VerifyAccessTokenRs();
+        verifyAccessTokenRs.setIdToken(""); // TODO update session management
+        verifyAccessTokenRs.setIsValid(payload != null); //null if expired
         return null;
     }
 

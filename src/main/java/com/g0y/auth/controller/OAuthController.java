@@ -101,7 +101,8 @@ public class OAuthController {
     public String success(HttpServletResponse response, HttpSession httpSession, Model model) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         httpSession.removeAttribute(NONCE);
 
-        GetPayloadInfoRs getPayloadInfoRs = oAuthService.decodeIdToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
+        GetPayloadInfoRs getPayloadInfoRs = oAuthService.decodeIdToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue()),
+                (String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
         //IdToken idToken = apiService.idToken((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue()));
         model.addAttribute("idToken_name", getPayloadInfoRs.getName());
         model.addAttribute("idToken_picture", getPayloadInfoRs.getPicture());
