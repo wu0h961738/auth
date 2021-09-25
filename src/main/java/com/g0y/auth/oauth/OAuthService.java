@@ -5,12 +5,15 @@ import com.g0y.auth.component.utils.SpringContextUtils;
 import com.g0y.auth.controller.model.AuthPageAdapterContext;
 import com.g0y.auth.controller.model.AuthPageRq;
 import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.g0y.auth.exception.model.InvalidAgencyException;
 import com.g0y.auth.oauth.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 /**
@@ -97,11 +100,33 @@ public class OAuthService {
      * @param inputParam parameter class for method
      * @param returnType type of return value
      * */
-    private <T,R> R getReflectMethod(String beanName, String methodName, T inputParam, Class<R> returnType) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private <T,R> R getReflectMethod(String beanName, String methodName, T inputParam, Class<R> returnType) {
         Object beanObj = SpringContextUtils.getBean(beanName);
-        Class<? extends OAuth2> agencyObj = (Class<? extends OAuth2>) beanObj.getClass();
-        Method getUrlMethod =agencyObj.getMethod(methodName, inputParam.getClass());
-        return returnType.cast(getUrlMethod.invoke(beanObj, inputParam));
+        Object invokeObj = null;
+        try{
+            Class<? extends OAuth2> agencyObj = (Class<? extends OAuth2>) beanObj.getClass();
+            Method getUrlMethod =agencyObj.getMethod(methodName, inputParam.getClass());
+            invokeObj = getUrlMethod.invoke(beanObj, inputParam);
+        } catch (NoSuchMethodException noSuchMethodException){
+            // assume that all valid agency name was set and that the error is only caused by mis injection of agency name from attacker
+            throw new InvalidAgencyException("No such auth provider");
+        } catch (IllegalAccessException illegalAccessException){
+
+        } catch(InvocationTargetException invocationTargetException){
+            // reflecting exceptions included in bean
+            try{
+                throw invocationTargetException.getCause();
+            } catch (GeneralSecurityException ge){
+
+            } catch (IOException ie){
+
+            } catch (Exception e){
+
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+        return returnType.cast(invokeObj);
     }
 
 }
