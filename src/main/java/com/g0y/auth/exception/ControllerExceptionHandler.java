@@ -1,6 +1,6 @@
 package com.g0y.auth.exception;
 
-import com.g0y.auth.exception.model.ErrorMessage;
+import com.g0y.auth.exception.model.BaseErrorMessage;
 import com.g0y.auth.exception.model.InvalidAgencyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,17 +24,17 @@ public class ControllerExceptionHandler {
      * */
     @ExceptionHandler(InvalidAgencyException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ErrorMessage handleInvalidAgency(HttpServletRequest httpServletRequest,
-                                    HttpServletResponse httpServletResponse,
-                                    InvalidAgencyException iae){
-        ErrorMessage errorMessage = new ErrorMessage(
+    public BaseErrorMessage handleInvalidAgency(HttpServletRequest httpServletRequest,
+                                                HttpServletResponse httpServletResponse,
+                                                InvalidAgencyException iae){
+        BaseErrorMessage baseErrorMessage = new BaseErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 "invalid agency",
                 iae.getMessage()
         );
 
-        return errorMessage;
+        return baseErrorMessage;
     }
 
 }

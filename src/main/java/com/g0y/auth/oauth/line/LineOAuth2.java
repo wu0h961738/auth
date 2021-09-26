@@ -1,5 +1,8 @@
 package com.g0y.auth.oauth.line;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.g0y.auth.exception.constant.ErrorMessageEnum;
+import com.g0y.auth.exception.model.UnAuthorizedException;
 import com.g0y.auth.oauth.line.component.APIService;
 import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.component.utils.CommonUtils;
@@ -44,7 +47,7 @@ public class LineOAuth2 implements OAuth2 {
     public GetTokenInfoRs getTokenInfo(GetAccessTokenContext getAccessTokenContext) throws Exception {
         AccessToken accessToken = apiService.accessToken(getAccessTokenContext.getAuthorizationCode());
         if(accessToken == null){
-            throw new Exception("Invalid authorization code");
+            throw new UnAuthorizedException(ErrorMessageEnum.INVALID_AUTH_CODE.getErrorMessage());
         }
         String idToken = accessToken.getId_token();
         //verify token if meeting standard (XSS check : compare hash(idToken+nonce) ?= token received)
@@ -77,7 +80,13 @@ public class LineOAuth2 implements OAuth2 {
 
     @Override
     public GetPayloadInfoRs getUserInfo(String idToken) {
-        IdToken payload = apiService.idToken(idToken);
+        IdToken payload;
+        try{
+            payload = apiService.idToken(idToken);
+        } catch (JWTDecodeException jwtDecodeException){
+            throw new UnAuthorizedException("Invalid Id token.");
+        }
+
         GetPayloadInfoRs getPayloadInfoRs = new GetPayloadInfoRs();
         getPayloadInfoRs.setName(payload.name);
         getPayloadInfoRs.setPicture(payload.picture);

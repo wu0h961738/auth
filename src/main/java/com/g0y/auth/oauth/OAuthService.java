@@ -56,6 +56,15 @@ public class OAuthService {
 
     /**
      * request for accessToken
+     * step:
+     * 1. get sessionID
+     * 2. get access token from redis by passing sessionID
+     *   2.1 if value get, validate the access token through passing api provide by each agency.
+     *     2.1.1 if valid, proceed with digesting payload and refreshing TTL of session stored in Redis
+     *     2.1.2 if invalid, redirect to 2.2
+     *   2.2 if no value get, representing access token expired, get refresh token for getting new access token
+     *     2.2.1 if refresh token is valid, do same as 2.1.1, proceeding with digesting payload and refreshing TTL of session stored in Redis
+     *     2.2.2 if refresh token is invalid, redirect to auth page
      * */
     public GetTokenInfoRs getToken(Map<String, String> authRq, String nonce) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 

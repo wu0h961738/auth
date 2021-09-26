@@ -1,6 +1,7 @@
 package com.g0y.auth.oauth.model;
 
 import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.google.auth.oauth2.AccessToken;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -27,8 +28,11 @@ public interface OAuth2 {
 
     /**
      * decode payload from id token
-     *
+     * 嘗試用invalid的idToken來解payload時，執行revoke token功能
      * @param idToken token received from provider
      * */
     GetPayloadInfoRs getUserInfo(String idToken) throws GeneralSecurityException, IOException;
+
+    /** revoke token*/
+    void revokeToken(String accessToken);
 }

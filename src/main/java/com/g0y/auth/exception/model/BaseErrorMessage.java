@@ -5,9 +5,12 @@ import lombok.Getter;
 
 import java.util.Date;
 
+/**
+ * base POJO of error message
+ * */
 @Getter
 @AllArgsConstructor
-public class ErrorMessage {
+public class BaseErrorMessage {
 
     /** http status code */
     private int statusCode;

@@ -59,42 +59,38 @@ public class APIService {
                 callbackUrl,
                 code));
     }
-//
-//    public AccessToken refreshToken(final AccessToken accessToken) {
-//        return getClient(t -> t.refreshToken(
-//                GRANT_TYPE_REFRESH_TOKEN,
-//                accessToken.refresh_token,
-//                channelId,
-//                channelSecret));
-//    }
-//
+
+    public AccessToken refreshToken(final AccessToken accessToken) {
+        return getClient(t -> t.refreshToken(
+                GRANT_TYPE_REFRESH_TOKEN,
+                accessToken.getRefresh_token(),
+                channelId,
+                channelSecret));
+    }
+
     public Verify verify(final AccessToken accessToken) {
         return getClient(t -> t.verify(
                 accessToken.getAccess_token()));
     }
-//
-//    public void revoke(final AccessToken accessToken) {
-//        getClient(t -> t.revoke(
-//                accessToken.access_token,
-//                channelId,
-//                channelSecret));
-//    }
 
-    public IdToken idToken(String id_token) {
-        try {
-            DecodedJWT jwt = JWT.decode(id_token);
-            return new IdToken(
-                    jwt.getClaim("iss").asString(),
-                    jwt.getClaim("sub").asString(),
-                    jwt.getClaim("aud").asString(),
-                    jwt.getClaim("ext").asLong(),
-                    jwt.getClaim("iat").asLong(),
-                    jwt.getClaim("nonce").asString(),
-                    jwt.getClaim("name").asString(),
-                    jwt.getClaim("picture").asString());
-        } catch (JWTDecodeException e) {
-            throw new RuntimeException(e);
-        }
+    public void revoke(final AccessToken accessToken) {
+        getClient(t -> t.revoke(
+                accessToken.getAccess_token(),
+                channelId,
+                channelSecret));
+    }
+
+    public IdToken idToken(String id_token) throws JWTDecodeException{
+        DecodedJWT jwt = JWT.decode(id_token);
+        return new IdToken(
+                jwt.getClaim("iss").asString(),
+                jwt.getClaim("sub").asString(),
+                jwt.getClaim("aud").asString(),
+                jwt.getClaim("ext").asLong(),
+                jwt.getClaim("iat").asLong(),
+                jwt.getClaim("nonce").asString(),
+                jwt.getClaim("name").asString(),
+                jwt.getClaim("picture").asString());
     }
 
     public String getLineWebLoginUrl(String state, String nonce, List<String> scopes) {
