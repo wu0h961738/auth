@@ -17,6 +17,4 @@ public final class AccessToken {
     private String expires_in;
     private String refresh_token;
     private String id_token;
-
-
 }

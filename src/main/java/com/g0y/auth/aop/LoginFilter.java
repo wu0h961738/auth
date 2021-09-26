@@ -38,8 +38,8 @@ public class LoginFilter implements Filter {
             Optional<Cookie> cookieOfToken = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(cookieNameStoringAcstkn)).findFirst();
             if(cookieOfToken.isPresent()){
                 // validate whether token exists in redis
-                String ackTknKey = cookieOfToken.get().getValue();
-                httpSession.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), ackTknKey);
+                String sessionObjJWT = cookieOfToken.get().getValue();
+                httpSession.setAttribute(SessionEnum.SESSION_JWT.getValue(), sessionObjJWT);
                 request.getRequestDispatcher("/verify").forward(request, servletResponse);
                 log.info("trans to verify page");
                 return ;

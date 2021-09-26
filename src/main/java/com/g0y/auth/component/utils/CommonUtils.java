@@ -15,26 +15,74 @@
  */
 package com.g0y.auth.component.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.g0y.auth.session.model.SessionObject;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
  * <p>Common utilities</p>
  */
+@Component
+@Slf4j
 public final class CommonUtils {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private CommonUtils() {}
+    /** serializer TODO customize configuration of mapper */
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * <p>Generate Token</p>
      */
-    public static String randomAndEncodeWithBase64(int length) {
+    public String randomAndEncodeWithBase64(int length) {
         byte[] bytes = new byte[length];
         RANDOM.nextBytes(bytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         return token;
+    }
+
+    /**
+     * serialize to the serialized string for storing in cookie
+     *
+     * @param sessionObj obj to be serialized
+     * @return serialized string
+     * */
+    public String serializeSessionObj(SessionObject sessionObj) {
+        String serializedString = null;
+        try{
+            serializedString = objectMapper.writeValueAsString(sessionObj);
+        } catch (JsonProcessingException jpe){
+            // TODO error handling?
+            log.error("serialize session object to json string failed.");
+        }
+        return serializedString;
+    }
+
+    /**
+     * deserialize to Session object
+     *
+     * @param json json String
+     * */
+    public SessionObject deserializeSessionObjString(String json){
+        SessionObject sessionObject = null;
+        try{
+            sessionObject = objectMapper.readValue(json, SessionObject.class);
+        } catch (JsonMappingException e) {
+            // TODO error handling?
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            // TODO error handling?
+            e.printStackTrace();
+        }
+        return sessionObject;
     }
 
     /**
@@ -43,7 +91,7 @@ public final class CommonUtils {
      *
      * @param agencyName name of auth provider
      * */
-    public static String generateTokenKey(String agencyName){
+    public String generateTokenKey(String agencyName){
         return agencyName + CommonUtils.randomAndEncodeWithBase64(6);
     }
 }

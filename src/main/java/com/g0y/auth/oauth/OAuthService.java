@@ -1,12 +1,18 @@
 package com.g0y.auth.oauth;
 
+import com.g0y.auth.component.model.SetSessionContext;
+import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.component.utils.AdapterUtils;
+import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.component.utils.SpringContextUtils;
+import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.controller.model.AuthPageAdapterContext;
 import com.g0y.auth.controller.model.AuthPageRq;
-import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.g0y.auth.controller.model.SetSessionWithTokenRs;
+import com.g0y.auth.oauth.model.GetTokenInfoRs;
 import com.g0y.auth.exception.model.InvalidAgencyException;
 import com.g0y.auth.oauth.model.*;
+import com.g0y.auth.session.model.SessionObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,51 +50,76 @@ public class OAuthService {
     @Autowired
     private AdapterUtils adapterUtils;
 
+    @Autowired
+    private CommonUtils commonUtils;
+
+    /** redis for session storage*/
+    @Autowired
+    private RedisSessionService redisSessionService;
+
     /**
      * get Auth page provided by vendor
      *
      * @param getAuthPageUrlContext context
      * */
-    public String getUrl(GetAuthPageUrlContext getAuthPageUrlContext) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public String getUrl(GetAuthPageUrlContext getAuthPageUrlContext) {
         agency = getAuthPageUrlContext.getAgency();
         return getReflectMethod(agency + SUFFIX_OF_CLASS, AUTHPAGE_URL, getAuthPageUrlContext, String.class);
     }
 
     /**
-     * request for accessToken
-     * step:
-     * 1. get sessionID
-     * 2. get access token from redis by passing sessionID
-     *   2.1 if value get, validate the access token through passing api provide by each agency.
-     *     2.1.1 if valid, proceed with digesting payload and refreshing TTL of session stored in Redis
-     *     2.1.2 if invalid, redirect to 2.2
-     *   2.2 if no value get, representing access token expired, get refresh token for getting new access token
-     *     2.2.1 if refresh token is valid, do same as 2.1.1, proceeding with digesting payload and refreshing TTL of session stored in Redis
-     *     2.2.2 if refresh token is invalid, redirect to auth page
+     * request for accessToken and return serialized JWT token storing session.
+     *
      * */
-    public GetTokenInfoRs getToken(Map<String, String> authRq, String nonce) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public SetSessionWithTokenRs setSessionWithToken(Map<String, String> authRq, String nonce) {
 
-        // adapt specific rq
+        // Deserialize from request provided from agency by adapting specific rq
         AuthPageAdapterContext authPageAdapterContext = new AuthPageAdapterContext();
         authPageAdapterContext.setAgency(agency);
         authPageAdapterContext.setRequestParams(authRq);
         authPageAdapterContext.setNonce(nonce);
         AuthPageRq authPageRq = adapterUtils.getAuthPageRq(authPageAdapterContext);
 
-        // get access token
+        // get full access token
         GetAccessTokenContext getAccessTokenContext = new GetAccessTokenContext();
         getAccessTokenContext.setAuthorizationCode(authPageRq.getCode());
         getAccessTokenContext.setNonce(nonce);
         getAccessTokenContext.setState(authPageRq.getState());
-        return getReflectMethod(agency + SUFFIX_OF_CLASS, ACCESSTOKEN, getAccessTokenContext, GetTokenInfoRs.class);
+        GetTokenInfoRs getTokenInfoRs = getReflectMethod(agency + SUFFIX_OF_CLASS, ACCESSTOKEN, getAccessTokenContext, GetTokenInfoRs.class);
+
+        // set token into redis
+        // key : value =  : accessToken(id_token(payload))
+        SetSessionContext setSessionContext = new SetSessionContext();
+        String hashKey = CommonUtils.generateTokenKey(AgencyEnum.LINE.getAgencyName());
+         redisSessionService.setSession(setSessionContext);
+
+        // return serialized string
+        SessionObject sessionObject = new SessionObject();
+        sessionObject.setSessionId();
+        sessionObject.setKeyForRefreshToken();
+
+        // package response into SetSessionWithTokenRs
+        SetSessionWithTokenRs setSessionWithTokenRs = new SetSessionWithTokenRs();
+        setSessionWithTokenRs.setSessionKey(commonUtils.serializeSessionObj(sessionObject));
+        setSessionWithTokenRs.setIdToken(getTokenInfoRs.getIdToken());
+        return setSessionWithTokenRs;
     }
 
     /**
      * verify token by api requesting agency
      *
+     * step:
+     * 1. deserialize the sessionJWT
+     * 2. get token key from decoding, which is to the value : session id, which point to the slot stored in Redis containing user payload
+     * 3. access redis to get session id
+     *  3.1 if available, get payload by accessing with session id
+     *  3.2 if not, get refresh token by key extracted from sessionJWT and access redis
+     *      3.2.1 if available, refresh by api
+     *      3.2.2 if not, auth from scratch.
      * @param verifyAccessTokenContext context containing params for verifying access Token
      * */
     public VerifyAccessTokenRs verifyAccessToken(VerifyAccessTokenContext verifyAccessTokenContext) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+
         return getReflectMethod(verifyAccessTokenContext.getAgencyName() + SUFFIX_OF_CLASS, VERIFYTOKEN, verifyAccessTokenContext, VerifyAccessTokenRs.class);
     }
 

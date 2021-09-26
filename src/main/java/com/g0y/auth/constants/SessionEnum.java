@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SessionEnum {
 
+    SESSION_JWT("sessionJwt"),
     SESSION_KEY_REDISKEY("hashKey"),
     SESSION_KEY_IDTOKEN("idToken"),
     SESSION_KEY_AGENCY("agency");

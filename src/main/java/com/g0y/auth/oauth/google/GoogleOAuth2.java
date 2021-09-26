@@ -3,7 +3,8 @@ package com.g0y.auth.oauth.google;
 import com.g0y.auth.component.service.RedisSessionService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
-import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.g0y.auth.oauth.model.GetTokenInfoRs;
+import com.g0y.auth.exception.model.UnAuthorizedException;
 import com.g0y.auth.oauth.google.component.GoogleOAuthService;
 import com.g0y.auth.oauth.line.model.AccessToken;
 import com.g0y.auth.oauth.model.*;
@@ -34,8 +35,13 @@ public class GoogleOAuth2 implements OAuth2 {
     }
 
     @Override
-    public GetTokenInfoRs getTokenInfo(GetAccessTokenContext getAccessTokenContext) throws Exception {
-        GoogleTokenResponse tokenResponse = googleOAuthService.getAccessToken(getAccessTokenContext.getAuthorizationCode());
+    public GetTokenInfoRs getTokenInfo(GetAccessTokenContext getAccessTokenContext) throws UnAuthorizedException {
+        GoogleTokenResponse tokenResponse;
+        try{
+            tokenResponse = googleOAuthService.getAccessToken(getAccessTokenContext.getAuthorizationCode());
+        } catch(IOException ioe){
+            throw new UnAuthorizedException("");
+        }
 
         // redis - key : value =  : accessToken(id_token(payload))
         String hashKey = CommonUtils.generateTokenKey(AgencyEnum.GOOGLE.getAgencyName());

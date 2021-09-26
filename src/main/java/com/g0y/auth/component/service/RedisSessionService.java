@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.g0y.auth.component.model.SetSessionContext;
 import com.g0y.auth.component.service.model.AccessTokenInfo;
 import com.g0y.auth.oauth.line.model.AccessToken;
+import com.g0y.auth.session.model.SessionObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +51,19 @@ public class RedisSessionService {
     this.objectMapper = new ObjectMapper(objectMapper.getFactory());
     this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     this.objectMapper.registerModule(new JavaTimeModule());
+  }
+
+  /**
+   * set:
+   * 1. session id : user info payload
+   * 2. token : sessionId
+   * 3. refreshKey : refresh token
+   * @return structure of 2,3 (serialized token containing sessionId and key to refresh token)
+   * */
+  public SessionObject setSession(SetSessionContext setSessionContext){
+    SessionObject sessionObject = new SessionObject();
+
+    return sessionObject;
   }
 
   /**

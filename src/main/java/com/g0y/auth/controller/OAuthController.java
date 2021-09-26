@@ -1,13 +1,11 @@
 package com.g0y.auth.controller;
 
-import com.g0y.auth.oauth.line.component.APIService;
 import com.g0y.auth.component.utils.CommonUtils;
 import com.g0y.auth.constants.AgencyEnum;
 import com.g0y.auth.constants.SessionEnum;
-import com.g0y.auth.controller.model.GetTokenInfoRs;
+import com.g0y.auth.oauth.model.GetTokenInfoRs;
 import com.g0y.auth.oauth.OAuthService;
 import com.g0y.auth.oauth.model.GetAuthPageUrlContext;
-import com.g0y.auth.oauth.line.model.IdToken;
 import com.g0y.auth.oauth.model.GetPayloadInfoRs;
 import com.g0y.auth.oauth.model.VerifyAccessTokenContext;
 import com.g0y.auth.oauth.model.VerifyAccessTokenRs;
@@ -86,7 +84,7 @@ public class OAuthController {
 //        if (!state.equals(httpSession.getAttribute(STATE))){
 //            return "redirect:/sessionError";
 //        }
-        GetTokenInfoRs tokenInfoRs = oAuthService.getToken(authRq, (String) httpSession.getAttribute(NONCE));
+        GetTokenInfoRs tokenInfoRs = oAuthService.setSessionWithToken(authRq, (String) httpSession.getAttribute(NONCE));
         httpSession.setAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue(), tokenInfoRs.getIdToken());
         //TODO session could store list of redisKey = key : list<String> redisKey
         httpSession.setAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue(), tokenInfoRs.getHashKey());
@@ -125,7 +123,7 @@ public class OAuthController {
     public String verify(HttpSession httpSession) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         VerifyAccessTokenContext verifyAccessTokenContext = new VerifyAccessTokenContext();
         verifyAccessTokenContext.setAgencyName((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_AGENCY.getValue()));
-        verifyAccessTokenContext.setRedisKey((String) httpSession.getAttribute(SessionEnum.SESSION_KEY_REDISKEY.getValue()));
+        verifyAccessTokenContext.setRedisKey((String) httpSession.getAttribute(SessionEnum.SESSION_JWT.getValue()));
         VerifyAccessTokenRs verifyAccessTokenRs = oAuthService.verifyAccessToken(verifyAccessTokenContext);
         if(verifyAccessTokenRs.getIsValid()){
             httpSession.setAttribute(SessionEnum.SESSION_KEY_IDTOKEN.getValue(), verifyAccessTokenRs.getIdToken());

@@ -1,7 +1,6 @@
 package com.g0y.auth.oauth.model;
 
-import com.g0y.auth.controller.model.GetTokenInfoRs;
-import com.google.auth.oauth2.AccessToken;
+import com.g0y.auth.exception.model.UnAuthorizedException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -19,7 +18,7 @@ public interface OAuth2 {
     /**
      * get the redis key pointing access token
      * */
-    GetTokenInfoRs getTokenInfo(GetAccessTokenContext getAccessTokenContext) throws Exception;
+    GetTokenInfoRs getTokenInfo(GetAccessTokenContext getAccessTokenContext) throws UnAuthorizedException;
 
     /**
      * verify by sending token to vendor, confirming if token is valid

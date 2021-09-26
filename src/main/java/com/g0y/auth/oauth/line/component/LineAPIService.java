@@ -39,7 +39,7 @@ import retrofit2.Call;
  * <p>LINE v2 API Access</p>
  */
 @Component
-public class APIService {
+public class LineAPIService {
 
     private static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
     private static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
